@@ -1,0 +1,28 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="card">
+    <h2><%= t('orders') %></h2>
+    <div class="table">
+      <div class="thead">
+        <div><%= (lang==='en') ? 'Order' : 'سفارش' %></div><div><%= (lang==='en') ? 'User' : 'کاربر' %></div><div><%= (lang==='en') ? 'Total' : 'مبلغ' %></div><div><%= (lang==='en') ? 'Time' : 'زمان' %></div><div><%= (lang==='en') ? 'Status' : 'وضعیت' %></div><div></div>
+      </div>
+      <% orders.forEach(o => { %>
+        <div class="trow">
+          <div><strong>#<%= o.id %></strong></div>
+          <div><%= o.first_name %> <%= o.last_name %> <span class="muted">(@<%= o.username %>)</span></div>
+          <div><%= new Intl.NumberFormat('fa-IR').format(o.total) %> تومان</div>
+          <div class="muted"><%= o.created_at %></div>
+          <div><span class="badge <%= o.status==='paid' ? 'badge--ok' : 'badge--muted' %>"><%= o.status %></span></div>
+          <div class="right"><a class="btn btn--sm" href="/admin/orders/<%= o.id %>"><%= (lang==='en') ? 'Details' : 'جزئیات' %></a></div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

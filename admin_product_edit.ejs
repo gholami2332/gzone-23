@@ -1,0 +1,78 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="card">
+    <div class="row row--between">
+      <h2><%= mode === 'new' ? t('new_product') : (t('edit') + ' #' + product.id) %></h2>
+      <a class="btn btn--ghost" href="/admin/products"><%= t('back') %></a>
+    </div>
+
+    <form method="post" action="<%= mode === 'new' ? '/admin/products/new' : '/admin/products/' + product.id %>" class="form">
+      <label><%= t('categories') %></label>
+      <select name="category_id" required>
+        <% categories.forEach(c => { %>
+          <option value="<%= c.id %>" <%= Number(product.category_id) === Number(c.id) ? 'selected' : '' %>><%= (lang==='en') ? (c.title_en || c.title) : c.title %> <%= c.title_en && lang==='fa' ? ('— '+c.title_en) : '' %></option>
+        <% }) %>
+      </select>
+
+      <label><%= t('title_fa') %></label>
+      <input name="title" value="<%= product.title %>" required />
+
+      <label><%= t('title_en') %></label>
+      <input name="title_en" value="<%= product.title_en || '' %>" />
+
+      <label><%= t('desc_fa') %></label>
+      <textarea name="description" rows="3"><%= product.description %></textarea>
+
+      <label><%= t('desc_en') %></label>
+      <textarea name="description_en" rows="3"><%= product.description_en || '' %></textarea>
+
+      <div class="grid-2">
+        <div>
+          <label><%= t('price') %> (<%= t('toman') %>)</label>
+          <input name="price" type="number" min="0" value="<%= product.price %>" />
+        </div>
+        <div>
+          <label><%= (lang==='fa' ? 'ترتیب نمایش' : 'Sort order') %></label>
+          <input name="sort_order" type="number" min="0" value="<%= product.sort_order || 1 %>" />
+        </div>
+      </div>
+
+      <label class="checkbox">
+        <input type="checkbox" name="is_active" value="1" <%= product.is_active ? 'checked' : '' %> />
+        <%= (lang==='fa' ? 'فعال باشد' : 'Active') %>
+      </label>
+
+      <button class="btn" type="submit"><%= t('save') %></button>
+    </form>
+  </div>
+
+  <% if (mode === 'edit') { %>
+    <div class="grid-2">
+      <div class="card">
+        <h3><%= t('image') %></h3>
+        <img class="preview" src="<%= product.image %>" onerror="this.src='/images/placeholder.png'" />
+        <form method="post" action="/admin/products/<%= product.id %>/image" enctype="multipart/form-data" class="form">
+          <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp" required />
+          <button class="btn" type="submit"><%= (lang==='fa' ? 'آپلود عکس' : 'Upload') %></button>
+          <div class="hint muted"><%= (lang==='en') ? 'Max 2MB — jpg/png/webp only' : 'حداکثر ۲ مگابایت — فقط jpg/png/webp' %></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3><%= (lang==='fa' ? 'عملیات' : 'Actions') %></h3>
+        <form method="post" action="/admin/products/<%= product.id %>/deactivate">
+          <button class="btn btn--ghost" type="submit"><%= (lang==='fa' ? 'غیرفعال کردن' : 'Deactivate') %></button>
+        </form>
+        <div class="hint muted"><%= (lang==='fa' ? 'غیرفعال کردن' : 'Deactivate') %> باعث حذف از منوی کاربران می‌شود.</div>
+      </div>
+    </div>
+  <% } %>
+
+</main>
+
+<%- include('../partials/foot') %>

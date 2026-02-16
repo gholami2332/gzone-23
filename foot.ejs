@@ -1,0 +1,19 @@
+<footer class="footer">
+  <div>© <%= new Date().getFullYear() %> <%= t('brand') %></div>
+</footer>
+
+<script>
+// Provide a reliable "sticky offset" for mobile Safari when the header wraps to multiple lines.
+(function(){
+  function setNavH(){
+    var nav = document.querySelector('.nav');
+    if(!nav) return;
+    document.documentElement.style.setProperty('--navH', (nav.offsetHeight||0) + 'px');
+  }
+  document.addEventListener('DOMContentLoaded', setNavH);
+  window.addEventListener('load', setNavH);
+  window.addEventListener('resize', setNavH);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% const hasBanner = banner && banner.length; %>
+  <div class="landingBanner" style="<%= hasBanner ? `background-image:url('${banner}')` : '' %>"></div>
+  <section class="hero">
+    <h1 class="hero__title"><%= t('brand') %></h1>
+    <p class="hero__subtitle"><%= t('luxury_tagline') %> — <%= t('menu_tagline') %></p>
+  </section>
+
+  <% if (user) { %>
+    <div class="card">
+      <h3><%= t('welcome') %> <span class="badge"><%= user.first_name %> <%= user.last_name %></span></h3>
+      <% if (user.role === 'admin') { %>
+        <p class="muted"><%= t('you_are_admin') %></p>
+        <a class="btn" href="/admin/dashboard"><%= t('go_to_admin') %></a>
+      <% } else { %>
+        <p class="muted"><%= (lang==='en') ? 'You are signed in.' : 'ورود شما فعال است.' %></p>
+        <a class="btn" href="/dashboard"><%= t('login_to_account') %></a>
+      <% } %>
+    </div>
+  <% } else { %>
+
+    <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+    <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3><%= t('login') %></h3>
+        <form method="post" action="/login" class="form">
+          <label><%= t('username') %></label>
+          <input name="username" autocomplete="username" required />
+          <label><%= t('password') %></label>
+          <input name="password" type="password" autocomplete="current-password" required />
+          <button class="btn" type="submit"><%= t('enter_account') %></button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>ساخت حساب</h3>
+        <form method="post" action="/register" class="form">
+          <label><%= t('first_name') %></label>
+          <input name="first_name" required />
+          <label><%= t('last_name') %></label>
+          <input name="last_name" required />
+          <label><%= t('phone') %></label>
+          <input name="phone" inputmode="numeric" required />
+          <label><%= t('username') %></label>
+          <input name="username" autocomplete="username" required />
+          <label><%= t('password') %></label>
+          <input name="password" type="password" autocomplete="new-password" required />
+          <button class="btn" type="submit"><%= t('register_and_login') %></button>
+        </form>
+      </div>
+    </div>
+
+    <div class="hint">
+      <div class="muted"><%= t('admin_login') %>? <span class="muted">/admin</span></div>
+      <code>http://www.gzonecafe.ir/admin</code>
+    </div>
+
+  <% } %>
+</main>
+
+<%- include('../partials/foot') %>

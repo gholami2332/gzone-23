@@ -1,0 +1,13 @@
+{
+  "platform": "node",
+  "port": 3000,
+  "build": { "location": "germany" },
+  "node": { "version": "20", "mirror": false },
+  "healthCheck": {
+    "command": "CMD curl --fail http://localhost:3000/health || exit 1",
+    "interval": 30,
+    "timeout": 15,
+    "retries": 2,
+    "startPeriod": 10
+  }
+}

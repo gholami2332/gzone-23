@@ -1,0 +1,30 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% const nf = new Intl.NumberFormat(lang==='fa' ? 'fa-IR' : 'en-US'); %>
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+
+  <div class="card">
+    <h2><%= t('orders_title') %></h2>
+    <% if (orders.length === 0) { %>
+      <p class="muted"><%= (lang==='en') ? 'No orders yet.' : 'هنوز سفارشی ثبت نکرده‌اید.' %></p>
+    <% } else { %>
+      <% orders.forEach(o => { %>
+        <div class="order">
+          <div class="row">
+            <div><strong>#<%= o.id %></strong> — <span class="muted"><%= o.created_at %></span></div>
+            <div><strong><%= nf.format(o.total) %> <%= t('toman') %></strong> — <span class="badge"><%= o.status %></span></div>
+          </div>
+          <div class="order__items">
+            <% (itemsByOrder[o.id] || []).forEach(it => { %>
+              <div class="muted">• <%= (lang==='en' && it.title_en) ? it.title_en : it.title %> × <%= it.qty %> — <%= nf.format(it.price) %> <%= t('toman') %></div>
+            <% }) %>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

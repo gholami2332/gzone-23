@@ -1,0 +1,23 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <div class="card">
+    <h2><%= t('admin_dashboard') %></h2>
+    <div class="stats">
+      <div class="stat"><div class="stat__n"><%= usersCount %></div><div class="muted"><%= t('users') %></div></div>
+      <div class="stat"><div class="stat__n"><%= productsCount %></div><div class="muted"><%= t('products') %></div></div>
+      <div class="stat"><div class="stat__n"><%= ordersCount %></div><div class="muted"><%= t('orders') %></div></div>
+    </div>
+    <div class="row">
+      <a class="btn" href="/admin/products"><%= t('manage_menu') %></a>
+      <a class="btn btn--ghost" href="/admin/users"><%= t('users') %></a>
+      <a class="btn btn--ghost" href="/admin/orders"><%= t('orders') %></a>
+      <a class="btn btn--ghost" href="/admin/reports"><%= t('sales_report') %></a>
+      <a class="btn btn--ghost" href="/admin/categories"><%= t('categories') %></a>
+      <a class="btn btn--ghost" href="/admin/branding"><%= (lang==='en') ? 'Branding' : 'برندینگ' %></a>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

@@ -1,0 +1,57 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<div class="container">
+  <div class="row row--between row--center mt-24">
+    <h2><%= t('categories') %></h2>
+    <a class="btn btn--primary" href="/admin/categories/new">+ <%= t('new_category') %></a>
+  </div>
+
+  <% if (ok) { %>
+    <div class="alert alert--ok mt-16"><%= ok %></div>
+  <% } %>
+  <% if (err) { %>
+    <div class="alert alert--danger mt-16"><%= err %></div>
+  <% } %>
+
+  <div class="card mt-16">
+    <div class="card__body">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th><%= (lang==='en') ? 'No.' : 'ردیف' %></th>
+              <th><%= t('title_fa') %></th><th><%= t('title_en') %></th><th><%= t('icon') %></th>
+              <th><%= t('sort_order') %></th>
+              <th><%= t('actions') %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!categories || categories.length === 0) { %>
+              <tr><td colspan="4"><%= t('no_items') %></td></tr>
+            <% } %>
+            <% categories.forEach((c, idx) => { %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td><%= c.title %></td><td class="muted"><%= c.title_en || '' %></td><td><% if (c.icon) { %><img src="<%= c.icon %>" style="height:28px;width:28px;object-fit:contain;background:#fff;border-radius:8px;padding:4px"/><% } %></td>
+                <td><%= c.sort_order ?? 0 %></td>
+                <td class="nowrap">
+                  <a class="btn btn--ghost btn--sm" href="/admin/categories/<%= c.id %>"><%= t('edit') %></a>
+                  <form class="inline" method="post" action="/admin/categories/<%= c.id %>/delete" onsubmit="return confirm('<%= (lang==='en') ? 'Delete' : 'حذف' %> شود؟ اگر محصول دارد، <%= (lang==='en') ? 'Delete' : 'حذف' %> نمی‌شود.');">
+                    <button class="btn btn--danger btn--sm" type="submit"><%= (lang==='en') ? 'Delete' : 'حذف' %></button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="muted mt-12">
+        نکته: اگر یک دسته‌بندی محصول داشته باشد، برای جلوگیری از خطا <%= (lang==='en') ? 'Delete' : 'حذف' %> نمی‌شود.
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/foot') %>

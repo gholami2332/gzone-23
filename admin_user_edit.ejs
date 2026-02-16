@@ -1,0 +1,52 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="row row--between">
+        <h2>کاربر: <%= u.first_name %> <%= u.last_name %></h2>
+        <a class="btn btn--ghost" href="/admin/users"><%= t('back') %></a>
+      </div>
+      <div class="muted">یوزرنیم: <strong><%= u.username %></strong></div>
+      <div class="muted">تلفن: <strong><%= u.phone %></strong></div>
+      <div class="muted"><%= (lang==='en') ? 'Joined' : 'عضویت' %>: <strong><%= u.created_at %></strong></div>
+
+      <div class="spacer"></div>
+      <div class="credit big"><strong><%= (lang==='en') ? 'Current credit' : 'اعتبار فعلی' %>:</strong> <%= new Intl.NumberFormat('fa-IR').format(u.credit) %> <%= t('toman') %></div>
+
+      <div class="spacer"></div>
+      <h3>تغییر اعتبار</h3>
+      <form method="post" action="/admin/users/<%= u.id %>/credit" class="form">
+        <label>مبلغ تغییر (<%= t('toman') %>)</label>
+        <input name="delta" type="number" step="1000" value="0" required />
+        <label>توضیح</label>
+        <input name="reason" value="تغییر دستی اعتبار" />
+        <button class="btn" type="submit">ثبت تغییر</button>
+        <div class="hint muted">برای کم کردن اعتبار، عدد منفی وارد کنید (مثلاً -50000).</div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>سفارش‌های کاربر</h3>
+      <% if (orders.length === 0) { %>
+        <p class="muted">سفارشی ثبت نشده.</p>
+      <% } else { %>
+        <% orders.forEach(o => { %>
+          <div class="order">
+            <div class="row">
+              <div><strong>#<%= o.id %></strong> — <span class="muted"><%= o.created_at %></span></div>
+              <div><strong><%= new Intl.NumberFormat('fa-IR').format(o.total) %> <%= t('toman') %></strong> — <span class="badge"><%= o.status %></span></div>
+            </div>
+            <a class="btn btn--sm" href="/admin/orders/<%= o.id %>">جزئیات</a>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

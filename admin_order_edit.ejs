@@ -1,0 +1,41 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="card">
+    <div class="row row--between">
+      <h2><%= (lang==='en') ? 'Order' : 'سفارش' %> #<%= order.id %></h2>
+      <a class="btn btn--ghost" href="/admin/orders"><%= t('back') %></a>
+    </div>
+    <div class="muted"><%= (lang==='en') ? 'User' : 'کاربر' %>: <strong><%= order.first_name %> <%= order.last_name %></strong> (@<%= order.username %>)</div>
+    <div class="muted"><%= (lang==='en') ? 'Total' : 'مبلغ' %>: <strong><%= new Intl.NumberFormat('fa-IR').format(order.total) %> <%= t('toman') %></strong></div>
+    <div class="muted"><%= (lang==='en') ? 'Status' : 'وضعیت' %>: <strong><%= order.status %></strong></div>
+
+    <div class="spacer"></div>
+    <h3><%= (lang==='en') ? 'Items' : 'آیتم‌ها' %></h3>
+    <div class="order__items">
+      <% items.forEach(it => { %>
+        <div class="muted">• <%= it.title %> × <%= it.qty %> — <%= new Intl.NumberFormat('fa-IR').format(it.price) %> <%= t('toman') %></div>
+      <% }) %>
+    </div>
+
+    <div class="spacer"></div>
+    <h3>تغییر تاریخ/ساعت</h3>
+    <form method="post" action="/admin/orders/<%= order.id %>/time" class="form form--inline">
+      <input name="created_at" value="<%= order.created_at %>" />
+      <button class="btn btn--sm" type="submit">ذخیره زمان</button>
+    </form>
+    <div class="hint muted">فرمت نمونه: 2026-01-01 12:34:56</div>
+
+    <div class="spacer"></div>
+    <h3>بازگشت وجه</h3>
+    <form method="post" action="/admin/orders/<%= order.id %>/refund">
+      <button class="btn btn--ghost" type="submit">Refund (برگرداندن مبلغ به اعتبار)</button>
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

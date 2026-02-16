@@ -1,0 +1,136 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<div class="container">
+  <div class="row row--between row--center mt-24">
+    <h2><%= t('sales_report') %></h2>
+    <a class="btn btn--ghost" href="/admin/dashboard">بازگشت</a>
+  </div>
+
+  <div class="card mt-16">
+    <div class="card__body">
+      <form class="row row--wrap row--gap" method="get" action="/admin/reports">
+        <div>
+          <label class="label"><%= (lang==='en') ? 'From' : 'از تاریخ' %></label>
+          <input class="input" type="date" name="from" value="<%= from %>"/>
+        </div>
+        <div>
+          <label class="label"><%= (lang==='en') ? 'To' : 'تا تاریخ' %></label>
+          <input class="input" type="date" name="to" value="<%= to %>"/>
+        </div>
+        <div class="row row--center mt-22">
+          <button class="btn btn--primary" type="submit">نمایش</button>
+        </div>
+
+        <div class="row row--center mt-22 row--gap">
+          <a class="btn btn--ghost btn--sm" href="/admin/reports"><%= (lang==='en') ? 'Today' : 'امروز' %></a>
+          <a class="btn btn--ghost btn--sm" href="#" onclick="return quickRange(7)"><%= (lang==='en') ? '7 days' : '۷ روز' %> اخیر</a>
+          <a class="btn btn--ghost btn--sm" href="#" onclick="return quickRange(30)"><%= (lang==='en') ? '30 days' : '۳۰ روز' %> اخیر</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="grid grid--3 mt-16">
+    <div class="card">
+      <div class="card__body">
+        <div class="muted">مجموع فروش</div>
+        <div class="kpi"><%= Number(summary.total_sales || 0).toLocaleString('fa-IR') %> تومان</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__body">
+        <div class="muted">تعداد سفارش</div>
+        <div class="kpi"><%= Number(summary.orders_count || 0).toLocaleString('fa-IR') %></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__body">
+        <div class="muted">میانگین هر سفارش</div>
+        <div class="kpi"><%= Math.round(Number(summary.avg_order || 0)).toLocaleString('fa-IR') %> تومان</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid--2 mt-16">
+    <div class="card">
+      <div class="card__body">
+        <h3 class="mb-8">آیتم‌های فروخته‌شده (تجمیعی)</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>محصول</th>
+                <th>تعداد</th>
+                <th>درآمد</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (!topItems || topItems.length === 0) { %>
+                <tr><td colspan="3">داده‌ای در این بازه وجود ندارد.</td></tr>
+              <% } %>
+              <% topItems.forEach(it => { %>
+                <tr>
+                  <td><%= it.title %></td>
+                  <td><%= Number(it.qty || 0).toLocaleString('fa-IR') %></td>
+                  <td><%= Number(it.revenue || 0).toLocaleString('fa-IR') %> تومان</td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__body">
+        <h3 class="mb-8">لیست سفارش‌ها (این بازه)</h3>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>کد</th>
+                <th>کاربر</th>
+                <th>مبلغ</th>
+                <th>تاریخ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (!orders || orders.length === 0) { %>
+                <tr><td colspan="4">سفارشی ثبت نشده است.</td></tr>
+              <% } %>
+              <% orders.forEach(o => { %>
+                <tr>
+                  <td>#<%= o.id %></td>
+                  <td><%= o.user_id %></td>
+                  <td><%= Number(o.total || 0).toLocaleString('fa-IR') %> تومان</td>
+                  <td><%= o.created_at %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="muted mt-12">
+          برای گزارش دقیق‌تر، بازه «از/تا» را انتخاب کنید (روزانه/هفتگی/ماهانه).
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function quickRange(days) {
+  const pad = (n) => String(n).padStart(2,'0');
+  const d = new Date();
+  const end = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const start = new Date(end);
+  start.setDate(start.getDate() - (days-1));
+  const toIso = `${end.getFullYear()}-${pad(end.getMonth()+1)}-${pad(end.getDate())}`;
+  const fromIso = `${start.getFullYear()}-${pad(start.getMonth()+1)}-${pad(start.getDate())}`;
+  window.location.href = `/admin/reports?from=${fromIso}&to=${toIso}`;
+  return false;
+}
+</script>
+
+<%- include('../partials/foot') %>

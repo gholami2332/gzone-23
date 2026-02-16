@@ -1,0 +1,27 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="card">
+    <h2><%= t('users') %></h2>
+    <div class="table">
+      <div class="thead">
+        <div>کاربر</div><div><%= t('phone') %></div><div><%= t('credit') %></div><div><%= (lang==='en') ? 'Joined' : 'تاریخ عضویت' %></div><div></div>
+      </div>
+      <% users.forEach(u => { %>
+        <div class="trow">
+          <div><strong><%= u.first_name %> <%= u.last_name %></strong> <span class="muted">(@<%= u.username %>)</span></div>
+          <div class="muted"><%= u.phone %></div>
+          <div><%= new Intl.NumberFormat('fa-IR').format(u.credit) %> <%= t('toman') %></div>
+          <div class="muted"><%= u.created_at %></div>
+          <div class="right"><a class="btn btn--sm" href="/admin/users/<%= u.id %>">مدیریت</a></div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

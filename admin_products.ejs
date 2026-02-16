@@ -1,0 +1,52 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="card">
+    <div class="row row--between">
+      <h2><%= t('manage_menu') %></h2>
+      <a class="btn" href="/admin/products/new"><%= t('new_product') %></a>
+    </div>
+
+    <form method="get" action="/admin/products" class="form form--inline">
+      <input name="q" value="<%= q %>" placeholder="<%= t('search_placeholder') %>" />
+      <button class="btn btn--sm" type="submit"><%= t('search') %></button>
+    </form>
+
+    <div class="table">
+      <div class="thead">
+        <div><%= t('title_fa') %></div>
+        <div><%= t('title_en') %></div>
+        <div><%= t('category') %></div>
+        <div><%= t('price') %></div>
+        <div><%= t('status') %></div>
+        <div></div>
+      </div>
+
+      <% if (!products || products.length === 0) { %>
+        <div class="trow">
+          <div class="muted"><%= t('no_items') %></div>
+          <div></div><div></div><div></div><div></div><div></div>
+        </div>
+      <% } %>
+
+      <% products.forEach(p => { %>
+        <div class="trow">
+          <div><strong><%= p.title %></strong></div>
+          <div class="muted"><%= p.title_en || '' %></div>
+          <div class="muted"><%= (lang==='en') ? (p.category_title_en || p.category_title) : p.category_title %></div>
+          <div><%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(p.price) %> <%= t('toman') %></div>
+          <div><span class="badge <%= p.is_active ? 'badge--ok' : 'badge--muted' %>"><%= p.is_active ? t('active') : t('inactive') %></span></div>
+          <div class="right">
+            <a class="btn btn--sm" href="/admin/products/<%= p.id %>"><%= t('edit') %></a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

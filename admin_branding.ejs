@@ -1,0 +1,41 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <div class="card">
+    <div class="row row--between">
+      <h2><%= (lang==='en') ? 'Branding & Banner' : 'برندینگ و بنر' %></h2>
+      <a class="btn btn--ghost" href="/admin/dashboard"><%= t('back') %></a>
+    </div>
+
+    <p class="muted">
+      <%= (lang==='en') 
+        ? 'Upload a landing-page banner. It will be shown with 30% opacity (overlay) and cover the whole page.'
+        : 'بنر صفحه اول را آپلود کنید. بنر با شفافیت ۳۰٪ به صورت بک‌گراند کل صفحه نمایش داده می‌شود.' %>
+    </p>
+
+    <div class="grid grid--2 mt-16">
+      <div class="card">
+        <h3><%= (lang==='en') ? 'Current banner' : 'بنر فعلی' %></h3>
+        <% if (banner && banner.length) { %>
+          <div style="border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:10px">
+            <img src="<%= banner %>" alt="banner" style="width:100%;display:block;max-height:320px;object-fit:cover" />
+          </div>
+        <% } else { %>
+          <div class="muted" style="margin-top:10px"><%= (lang==='en') ? 'No banner uploaded yet.' : 'هنوز بنری آپلود نشده است.' %></div>
+        <% } %>
+      </div>
+
+      <div class="card">
+        <h3><%= (lang==='en') ? 'Upload new banner' : 'آپلود بنر جدید' %></h3>
+        <form method="post" action="/admin/branding/banner" enctype="multipart/form-data" class="form">
+          <input type="file" name="banner" accept="image/png,image/jpeg,image/webp" required />
+          <div class="hint muted"><%= (lang==='en') ? 'Recommended: 1920×1080, JPG/PNG/WEBP' : 'پیشنهادی: ۱۹۲۰×۱۰۸۰، JPG/PNG/WEBP' %></div>
+          <button class="btn" type="submit"><%= (lang==='en') ? 'Upload' : 'آپلود' %></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

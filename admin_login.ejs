@@ -1,0 +1,24 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <section class="hero">
+    <h1 class="hero__title"><%= t('admin_login') %></h1>
+    <p class="hero__subtitle">G-Zone Cafe Back Office</p>
+  </section>
+
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+
+  <div class="card">
+    <form method="post" action="/admin/login" class="form">
+      <label><%= t('username') %></label>
+      <input name="username" required />
+      <label><%= t('password') %></label>
+      <input name="password" type="password" required />
+      <button class="btn" type="submit"><%= t('go_to_admin') %></button>
+    </form>
+    <div class="hint muted"><%= t('address') %>: <code>/admin</code></div>
+  </div>
+</main>
+
+<%- include('../partials/foot') %>

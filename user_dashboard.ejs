@@ -1,0 +1,391 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav', { user }) %>
+
+<main class="container">
+  <% const nf = new Intl.NumberFormat(lang==='fa' ? 'fa-IR' : 'en-US'); %>
+  <% if (err) { %><div class="alert alert--danger"><%= err %></div><% } %>
+  <% if (ok) { %><div class="alert alert--ok"><%= ok %></div><% } %>
+
+  <section class="card">
+    <h1 class="pageTitle"><%= t('account') %></h1>
+    <div class="row">
+      <div><strong><%= t('user') %>:</strong> <%= user.first_name %> <%= user.last_name %> (<%= user.username %>)</div>
+      <div class="credit"><strong><%= t('credit') %>:</strong> <%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(user.credit) %> <%= t('toman') %></div>
+      <div class="muted" style="margin-top:8px;font-size:12px;"><%= t('debit_note') %></div>
+    </div>
+  </section>
+
+  <section class="grid-2">
+<div class="card cartPanel sticky cartCol">
+      <h2 class="sectionTitle" style="margin:0 0 10px"><%= t('cart') %></h2>
+      <% if (cart.length === 0) { %>
+        <p class="muted"><%= t('empty_cart') %></p>
+      <% } else { %>
+        <div class="cart">
+          <% cart.forEach(it => { %>
+            <div class="cart__item">
+              <div class="cart__title"><%= (lang==='en') ? (it.title_en || it.title) : it.title %></div>
+              <div class="cart__controls">
+                <form method="post" action="/cart/update" class="inline">
+                  <input type="hidden" name="product_id" value="<%= it.product_id %>"/>
+                  <input class="qty" type="number" name="qty" min="0" value="<%= it.qty %>"/>
+                  <button class="btn btn--sm" type="submit"><%= (lang==='en') ? 'Update' : 'بروزرسانی' %></button>
+                </form>
+              </div>
+              <div class="cart__subtotal">
+                <%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(it.subtotal) %> <%= t('toman') %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <div class="total">
+          <div><strong><%= (lang==='en') ? 'Total:' : 'مجموع:' %></strong></div>
+          <div><strong><%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(total) %> <%= t('toman') %></strong></div>
+        </div>
+
+        <% if (total > user.credit) { %>
+          <div class="alert alert--danger"><%= (lang==='en') ? 'Not enough credit for this purchase.' : 'اعتبار شما برای این خرید کافی نیست.' %></div>
+        <% } %>
+
+        <div class="row">
+          <form method="post" action="/checkout" class="inline">
+            <button class="btn" type="submit" <%= (cart.length===0 || total > user.credit) ? 'disabled' : '' %>>
+              <%= t('checkout') %>
+            </button>
+          </form>
+          <form method="post" action="/cart/clear" class="inline">
+            <button class="btn btn--ghost" type="submit"><%= (lang==='en') ? 'Clear cart' : 'خالی کردن سبد' %></button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+<div class="card menuCol">
+  <div class="menuHeader">
+    <h2 class="sectionTitle" style="margin:0"><%= t('menu') %> <span class="muted">— <%= t('brand') %></span></h2>
+    <div class="muted" style="font-size:12px;"><%= t('categories_tabs_hint') %></div>
+  </div>
+
+  <!-- Sticky, horizontally-scrollable category tabs (mobile-friendly) -->
+  <div class="tabsSticky" id="catTabsSticky">
+    <div class="tabsWrap" id="catTabs" role="tablist" aria-label="Categories">
+      <div class="tabsInner">
+        <% categories.forEach((cat, idx) => { 
+             const catTitle = (lang === 'en') ? (cat.title_en || cat.title) : cat.title;
+        %>
+          <button type="button" class="tab <%= idx===0 ? 'active' : '' %>" data-cat="<%= cat.id %>" role="tab" aria-selected="<%= idx===0 ? 'true' : 'false' %>"><%= catTitle %></button>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <% categories.forEach((cat, idx) => { 
+       const catTitle = (lang === 'en') ? (cat.title_en || cat.title) : cat.title;
+  %>
+    <div id="cat-<%= cat.id %>" class="categorySection" data-cat="<%= cat.id %>">
+      <div class="category__title">
+        <h3 class="categoryHeading" style="margin:0"><%= catTitle %></h3>
+      </div>
+
+      <div class="products">
+        <% const catProducts = products.filter(p => p.category_id === cat.id); %>
+        <% if (catProducts.length === 0) { %>
+          <div class="muted"><%= (lang==='en') ? 'No items in this category yet.' : 'محصولی در این بخش ثبت نشده است.' %></div>
+        <% } %>
+
+        <% catProducts.forEach(p => { 
+             const pTitle = (lang==='en') ? (p.title_en || p.title) : p.title;
+             const pDesc  = (lang==='en') ? (p.description_en || p.description) : p.description;
+        %>
+          <div class="product">
+            <div class="product__img"><img src="<%= p.image %>" alt="<%= pTitle %>" onerror="this.src='/images/placeholder.png'"/></div>
+            <div class="product__meta">
+              <div class="product__title"><%= pTitle %></div>
+              <% if (pDesc) { %><div class="product__desc muted"><%= pDesc %></div><% } %>
+              <div class="product__bottom">
+                <div class="product__price">
+                  <% if (p.price > 0) { %>
+                    <strong><%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(p.price) %></strong> <%= t('toman') %>
+                  <% } else { %>
+                    <span class="muted"><%= (lang==='en') ? 'Price not set' : 'قیمت ثبت نشده' %></span>
+                  <% } %>
+                </div>
+
+                <form method="post" action="/cart/add" class="inline">
+                  <input type="hidden" name="product_id" value="<%= p.id %>" />
+                  <input type="hidden" name="open_cart" value="1" />
+                  <button class="btn btn--sm" type="submit"><%= t('add') %></button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% }) %>
+</div>
+  </section>
+
+  <!-- سبد خرید شناور برای موبایل (بالای صفحه) -->
+  <div class="cartbar" aria-label="<%= t('cart') %>" style="<%= cart.length ? '' : 'display:none' %>">
+    <button type="button" class="cartbar__btn" onclick="GZCart.open()" aria-label="<%= (lang==='en') ? 'Open cart' : 'باز کردن سبد خرید' %>">
+      <span class="cartbar__badge" aria-hidden="true"><%= cart.reduce((s, x) => s + (x.qty || 0), 0) %></span>
+      <span><%= t('cart') %></span>
+      <span class="sep">•</span>
+      <span><%= cart.reduce((s, x) => s + (x.qty || 0), 0) %> <%= (lang==='en') ? 'items' : 'آیتم' %></span>
+      <span class="sep">•</span>
+      <span><%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(total) %> <%= t('toman') %></span>
+    </button>
+    <form method="post" action="/checkout" class="cartbar__pay">
+      <button class="btn btn--sm" type="submit" <%= (cart.length===0 || total > user.credit) ? 'disabled' : '' %>><%= t('checkout') %></button>
+    </form>
+  </div>
+
+  <div id="cartDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer__backdrop" onclick="GZCart.close()"></div>
+    <div class="drawer__panel" role="dialog" aria-modal="true" aria-label="<%= t('cart') %>">
+      <div class="drawer__header">
+        <h3 style="margin:0"><%= t('cart') %></h3>
+        <button type="button" class="iconbtn" onclick="GZCart.close()" aria-label="<%= (lang==='en') ? 'Close' : 'بستن' %>">×</button>
+      </div>
+      <div class="drawer__body">
+        <% if (cart.length === 0) { %>
+          <div class="drawer__items">
+            <p class="muted"><%= t('empty_cart') %></p>
+          </div>
+        <% } else { %>
+          <div class="drawer__items">
+          <div class="cart">
+            <% cart.forEach(it => { %>
+              <div class="cart__item">
+                <div class="cart__title">
+                  <div><strong><%= (lang==='en' && it.title_en) ? it.title_en : it.title %></strong></div>
+                  <div class="muted"><%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(it.price) %> <%= t('toman') %> × <%= it.qty %></div>
+                </div>
+                <div class="cart__actions">
+                  <form method="post" action="/cart/dec" class="inline">
+                    <input type="hidden" name="product_id" value="<%= it.product_id %>" />
+                    <button class="btn btn--sm btn--ghost" type="submit">−</button>
+                  </form>
+                  <form method="post" action="/cart/inc" class="inline">
+                    <input type="hidden" name="product_id" value="<%= it.product_id %>" />
+                    <button class="btn btn--sm btn--ghost" type="submit">+</button>
+                  </form>
+                </div>
+                <div class="cart__subtotal">
+                  <%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(it.subtotal) %> <%= t('toman') %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+          </div>
+
+          <div class="drawer__footer">
+            <div class="total" style="margin-top:12px;">
+            <div><strong><%= (lang==='en') ? 'Total:' : 'مجموع:' %></strong></div>
+            <div><strong><%= new Intl.NumberFormat(lang==='fa'?'fa-IR':'en-US').format(total) %> <%= t('toman') %></strong></div>
+          </div>
+
+          <% if (total > user.credit) { %>
+            <div class="alert alert--danger" style="margin-top:10px;"><%= (lang==='fa' ? 'اعتبار شما برای این خرید کافی نیست.' : 'Not enough credit for this purchase.') %></div>
+          <% } %>
+
+          <div class="row" style="margin-top:12px;">
+            <form method="post" action="/checkout" class="inline">
+              <button class="btn" type="submit" <%= (cart.length===0 || total > user.credit) ? 'disabled' : '' %>>
+                <%= t('checkout') %>
+              </button>
+            </form>
+            <form method="post" action="/cart/clear" class="inline">
+              <button class="btn btn--ghost" type="submit"><%= (lang==='fa' ? 'خالی کردن سبد' : 'Clear cart') %></button>
+            </form>
+          </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    
+window.GZTabs = {
+  init(){
+    const tabsEl = document.getElementById('catTabs');
+    const tabsStickyEl = document.getElementById('catTabsSticky');
+    const tabs = Array.from(document.querySelectorAll('.tab[data-cat]'));
+    const sections = Array.from(document.querySelectorAll('.categorySection[data-cat]'));
+    if(!tabsEl || !tabs.length || !sections.length) return;
+
+	    const nav = document.querySelector('.nav');
+	    const getNavH = () => {
+	      // Prefer the CSS variable set in foot.ejs (more reliable on iOS when nav wraps)
+	      const v = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--navH') || '0', 10);
+	      return (Number.isFinite(v) && v > 0) ? v : (nav ? (nav.offsetHeight || 0) : 0);
+	    };
+	    // Use the sticky wrapper height so scroll offsets match what the user sees.
+	    const getTabsH = () => (tabsStickyEl?.offsetHeight || tabsEl?.offsetHeight || 0);
+	    const setTabsVar = () => {
+	      try{ document.documentElement.style.setProperty('--tabsH', getTabsH() + 'px'); }catch(e){}
+	    };
+	    setTabsVar();
+	    window.addEventListener('resize', setTabsVar);
+
+
+    // Ensure RTL tablist starts from the rightmost side (some browsers render overflow-x from left).
+    try{
+      const isRTL = (document.documentElement.getAttribute('dir')||'').toLowerCase() === 'rtl';
+      if(isRTL){
+        // Try both extremes to land on "start" in different RTL scrollLeft implementations.
+        tabsEl.scrollLeft = 0;
+        const max = Math.max(0, tabsEl.scrollWidth - tabsEl.clientWidth);
+        if(tabsEl.scrollLeft === 0 && max > 0) tabsEl.scrollLeft = max;
+      }
+    }catch(e){}
+
+    const key='gz_active_cat_'+(document.documentElement.getAttribute('lang')||'fa');
+    const saved=localStorage.getItem(key);
+    const first=tabs[0].dataset.cat;
+    let active = (saved && tabs.some(t=>t.dataset.cat===saved)) ? saved : first;
+
+    const setActive=(id, opts={save:true, scrollTab:true, behavior:'smooth'})=>{
+      tabs.forEach(t=>{
+        const on=t.dataset.cat===id;
+        t.classList.toggle('active',on);
+        t.setAttribute('aria-selected', on?'true':'false');
+      });
+      if(opts.save) localStorage.setItem(key,id);
+      if(opts.scrollTab){
+        try{
+          const activeTab = tabs.find(t=>t.dataset.cat===id);
+          if(activeTab && tabsEl){
+            // iOS Safari bug: Element.scrollIntoView() on a chip inside a horizontal
+            // scroller can scroll the whole page horizontally (layout "shifts").
+            // We manually scroll ONLY the tabs container just enough to keep the
+            // active tab visible.
+            const c = tabsEl.getBoundingClientRect();
+            const r = activeTab.getBoundingClientRect();
+            const pad = 24;
+            if(r.left < c.left + pad){
+              tabsEl.scrollBy({ left: (r.left - (c.left + pad)), behavior: opts.behavior });
+            }else if(r.right > c.right - pad){
+              tabsEl.scrollBy({ left: (r.right - (c.right - pad)), behavior: opts.behavior });
+            }
+          }
+        }catch(e){}
+      }
+      active = id;
+    };
+
+    const scrollToCat=(id)=>{
+      const section = document.getElementById('cat-'+id);
+      if(!section) return;
+      const tabsH = getTabsH();
+	      const y = section.getBoundingClientRect().top + window.pageYOffset - (getNavH() + tabsH + 12);
+      window.scrollTo({top: Math.max(0, y), behavior:'smooth'});
+    };
+
+    tabs.forEach(t=>t.addEventListener('click', ()=>{
+      const id = t.dataset.cat;
+      setActive(id, {save:true, scrollTab:true});
+      scrollToCat(id);
+    }));
+
+    // Scroll-spy: while you scroll down, the active tab changes (like modern restaurant menus).
+    try{
+      const makeObserver = ()=>{
+	        const tabsH = getTabsH();
+	        const top = getNavH() + tabsH + 20;
+        return new IntersectionObserver((entries)=>{
+          const visible = entries.filter(e=>e.isIntersecting);
+          if(!visible.length) return;
+          visible.sort((a,b)=>a.boundingClientRect.top - b.boundingClientRect.top);
+          const id = visible[0].target.getAttribute('data-cat');
+          if(id && id !== active) setActive(id, {save:true, scrollTab:true, behavior:'auto'});
+        }, { root:null, threshold:0.12, rootMargin:`-${top}px 0px -70% 0px` });
+      };
+
+      let io = makeObserver();
+      sections.forEach(s=>io.observe(s));
+      window.addEventListener('resize', ()=>{
+        try{ io.disconnect(); }catch(e){}
+        io = makeObserver();
+        sections.forEach(s=>io.observe(s));
+      });
+    }catch(e){
+      // Fallback: basic scroll listener
+	      const onScroll=()=>{
+	        const tabsH = getTabsH();
+	        const y = window.scrollY + getNavH() + tabsH + 24;
+        let cur = first;
+        for(const s of sections){
+          if(s.offsetTop <= y) cur = s.getAttribute('data-cat');
+        }
+        if(cur && cur !== active) setActive(cur, {save:true, scrollTab:true, behavior:'auto'});
+      };
+      let ticking=false;
+      window.addEventListener('scroll', ()=>{
+        if(ticking) return;
+        ticking=true;
+        requestAnimationFrame(()=>{ ticking=false; onScroll(); });
+      }, {passive:true});
+    }
+
+    // Initial highlight (no auto-scroll on load)
+    setActive(active, {save:false, scrollTab:false});
+  }
+};
+
+window.GZCart = {
+      open() {
+        const d = document.getElementById('cartDrawer');
+        if (!d) return;
+        d.classList.add('open');
+        d.setAttribute('aria-hidden','false');
+        // Lock scrolling (iOS Safari is picky; set on both html + body)
+        document.documentElement.classList.add('no-scroll');
+        document.body.classList.add('no-scroll');
+      },
+      close() {
+        const d = document.getElementById('cartDrawer');
+        if (!d) return;
+        d.classList.remove('open');
+        d.setAttribute('aria-hidden','true');
+        document.documentElement.classList.remove('no-scroll');
+        document.body.classList.remove('no-scroll');
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+    try{ GZTabs.init(); }catch(e){}
+    if(document.querySelector('.cartbar')) document.body.classList.add('has-cartbar');
+
+    const shouldOpen = <%= openCart ? 'true' : 'false' %>;
+
+    function isMobileLike(){
+      try{
+        const vv = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : null;
+        const vw = vv || window.innerWidth || document.documentElement.clientWidth || 9999;
+        const sw = Math.min((screen && screen.width) ? screen.width : vw, (screen && screen.height) ? screen.height : vw);
+        const coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+        return coarse || vw < 980 || sw < 600;
+      }catch(e){
+        return true;
+      }
+    }
+
+    if(shouldOpen){
+      try{
+        // On iOS Safari "Desktop Website" mode, matchMedia width can be ~980 even on phones.
+        // Using coarse pointer / screen size keeps the cart UX usable.
+        if(isMobileLike()){
+          GZCart.open();
+        } else {
+          const cp = document.querySelector('.cartPanel');
+          if(cp) cp.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }catch(e){}
+    }
+  });</script>
+</main>
+
+<%- include('../partials/foot') %>

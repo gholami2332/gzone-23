@@ -1,0 +1,36 @@
+<nav class="nav">
+  <div class="brand">
+    <a href="/" class="brand__name"><%= t('brand') %></a>
+    <span class="brand__tag"><%= t('luxury_tagline') %></span>
+  </div>
+
+  <div class="nav__links">
+    <div class="langswitch" aria-label="Language">
+      <a class="lang <%= lang==='fa' ? 'active' : '' %>" href="/lang/fa?next=<%= encodeURIComponent(currentUrl) %>">FA</a>
+      <a class="lang <%= lang==='en' ? 'active' : '' %>" href="/lang/en?next=<%= encodeURIComponent(currentUrl) %>">EN</a>
+    </div>
+    <% if (user) { %>
+      <% if (user.role === 'admin') { %>
+        <a href="/admin/dashboard"><%= t('admin_dashboard') %></a>
+        <a href="/admin/products"><%= t('products') %></a>
+        <a href="/admin/users"><%= t('users') %></a>
+        <a href="/admin/orders"><%= t('orders') %></a>
+        <a href="/admin/reports"><%= t('reports') %></a>
+        <a href="/admin/password"><%= t('change_password') %></a>
+        <a href="/admin/logout" class="muted"><%= t('logout') %></a>
+      <% } else { %>
+  <div class="userchip">
+    <span><%= t('welcome') %>، <strong><%= user.first_name %></strong></span>
+    <span class="sep">•</span>
+    <span class="creditchip"><%= t('credit') %>: <strong><%= new Intl.NumberFormat('fa-IR').format(user.credit) %></strong> <%= t('toman') %></span>
+  </div>
+  <a href="/dashboard"><%= t('go_to_dashboard') %></a>
+  <a href="/orders"><%= t('my_orders') %></a>
+  <a href="/account/password"><%= t('change_password') %></a>
+  <a href="/logout" class="muted"><%= t('logout') %></a>
+<% } %>
+    <% } else { %>
+      <a href="/admin" class="muted"><%= t('admin_login') %></a>
+    <% } %>
+  </div>
+</nav>
